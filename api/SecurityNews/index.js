@@ -1,3 +1,5 @@
+context.log("NEWSAPI_KEY:", process.env.NEWSAPI_KEY ? "SET" : "NOT SET");
+
 const axios = require("axios");
 
 module.exports = async function (context, req) {
@@ -32,4 +34,5 @@ module.exports = async function (context, req) {
         };
     }
 };
+
 
