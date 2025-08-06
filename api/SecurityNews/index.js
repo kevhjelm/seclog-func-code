@@ -1,14 +1,25 @@
 const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
 
 module.exports = async function (context, req) {
     const query = req.query.q;
 
-    // If no query param => return the HTML search page
+    // No query param → show search page
     if (!query) {
-        const htmlPath = path.join(__dirname, "../../index.html"); // index.html in root
-        const html = fs.readFileSync(htmlPath, "utf8");
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>News Search</title>
+            </head>
+            <body style="font-family: Arial; text-align: center; margin-top: 50px;">
+                <h1>Search News</h1>
+                <form method="GET" action="">
+                    <input type="text" name="q" placeholder="Enter search term" style="padding: 8px; width: 250px;">
+                    <button type="submit" style="padding: 8px;">Search</button>
+                </form>
+            </body>
+            </html>
+        `;
 
         context.res = {
             status: 200,
@@ -18,15 +29,11 @@ module.exports = async function (context, req) {
         return;
     }
 
-    // Otherwise => perform API request
-    context.log("Function starting...");
-    context.log("NEWSAPI_KEY present:", !!process.env.NEWSAPI_KEY);
-    context.log("Query param q:", query);
-
+    // Query provided → fetch news
     try {
         const response = await axios.get("https://newsapi.org/v2/everything", {
             params: {
-                q: query || "cybersecurity",
+                q: query,
                 sortBy: "publishedAt",
                 pageSize: 10,
                 apiKey: process.env.NEWSAPI_KEY
@@ -46,7 +53,6 @@ module.exports = async function (context, req) {
             body: articles
         };
     } catch (error) {
-        context.log("Error:", error);
         context.res = {
             status: 500,
             body: error.message
