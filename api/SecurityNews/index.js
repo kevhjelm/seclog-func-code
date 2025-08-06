@@ -1,14 +1,14 @@
-context.log("NEWSAPI_KEY:", process.env.NEWSAPI_KEY ? "SET" : "NOT SET");
-
 const axios = require("axios");
 
 module.exports = async function (context, req) {
-    const keyword = (req.query.q || (req.body && req.body.q) || "cybersecurity");
+    context.log("Function starting...");
+    context.log("NEWSAPI_KEY present:", !!process.env.NEWSAPI_KEY);
+    context.log("Query param q:", req.query.q);
 
     try {
         const response = await axios.get("https://newsapi.org/v2/everything", {
             params: {
-                q: keyword,
+                q: req.query.q || "cybersecurity",
                 sortBy: "publishedAt",
                 pageSize: 10,
                 apiKey: process.env.NEWSAPI_KEY
@@ -28,11 +28,10 @@ module.exports = async function (context, req) {
             body: articles
         };
     } catch (error) {
+        context.log("Error:", error);
         context.res = {
             status: 500,
             body: error.message
         };
     }
 };
-
-
